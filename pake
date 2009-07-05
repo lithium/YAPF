@@ -1,0 +1,61 @@
+#!/usr/bin/php
+<?php
+
+if ($argc < 2) {
+  usage();
+}
+
+$args = $argv;
+array_shift($args);
+$command = str_replace('-','_',array_shift($args));
+call_user_func('cmd_'.$command, $args);
+
+function usage()
+{
+  global $argv;
+  echo "Usage: {$argv[0]} [command] [arguments]\nCommands:\n";
+  echo "  init-app <app_name>\n";
+  echo "  init-module <app_name> <module_name>\n";
+  exit;
+}
+
+function cmd_init_app($args)
+{
+  if (count($args) < 1) return usage();
+  list($app) = $args;
+  mkdir("apps/{$app}",0755,true);
+  $default_config =<<<HERE
+[default]
+database_name=
+database_user=
+database_password=
+database_host=
+database_port=
+
+HERE;
+  file_put_contents("apps/{$app}/config.ini", $default_config);
+}
+function cmd_init_module($args)
+{
+  if (count($args) < 2) return usage();
+  list($app,$module) = $args;
+  if (! file_exists("apps/{$app}") ) {
+    echo "app '$app' not found\n";
+    return;
+  }
+  mkdir("apps/{$app}/{$module}/actions",0755,true);
+  mkdir("apps/{$app}/{$module}/templates",0755,true);
+  $action_class = ucfirst($module).'Actions';
+  $default_actions=<<<HERE
+<?php
+class $action_class extends Actions 
+{
+  public function executeIndex(\$request,\$response)
+  {
+  }
+}
+
+HERE;
+  file_put_contents("apps/{$app}/{$module}/actions/{$action_class}.php",$default_actions);
+  touch("apps/{$app}/{$module}/templates/index.php");
+}
