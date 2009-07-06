@@ -77,9 +77,9 @@ class Entity
       $where = '';
     $cursor = $dbh->query("SELECT * FROM `".static::$TABLE_NAME."` $where",$values);
     $cls = get_called_class();
-    $ret = array();
+    $ret = new EntitySet(static::$TABLE_NAME.'s');
     while($cursor->next()) {
-      $ret[] = new $cls($cursor->getRow());
+      $ret->add( new $cls($cursor->getRow()) );
     }
     return $ret;
   }
@@ -102,4 +102,30 @@ class Entity
     return $ret;
   }
   
+}
+
+class EntitySet implements Iterator {
+  private $entities=array();
+  private $set_name;
+  public function __construct($name='entities'){  
+    $this->set_name = $name;
+  }
+  public function add($entity) {
+    if (!$entity instanceof Entity) return;
+    array_push($this->entities,$entity);
+  }
+  public function rewind() { reset($this->entities); }
+  public function current() { return current($this->entities); }
+  public function next() { return next($this->entities); }
+  public function key() { return key($this->entities); }
+  public function valid() { return $this->current() !== false; }
+  public function toXml() {
+    if (count($this->entities) < 1) return "<{$this->set_name}/>";
+    $out = "<{$this->set_name}>";
+    foreach($this->entities as $entity) {
+      $out .= $entity->toXml();
+    }
+    $out .= "</{$this->set_name}>";
+    return $out;
+  }
 }
