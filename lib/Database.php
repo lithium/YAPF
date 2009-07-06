@@ -44,7 +44,7 @@ class Database
   public function query($query, $values=array())
   {
     $query = $this->replace_values($query,$values);
-    echo "\n<!-- $query -->\n";
+    #echo "\n<!-- $query -->\n";
     if (self::USING_MYSQLI) {
       $results = $this->conn->query($query);
     } else {

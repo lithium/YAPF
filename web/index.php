@@ -2,5 +2,5 @@
 
 require ( dirname(__FILE__).'/../lib/Config.php' );
 
-$config = Config::getConfig('frontend','prod');
+$config = Config::getConfig('api','dev');
 FrontController::instance($config)->dispatch();
