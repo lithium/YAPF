@@ -74,10 +74,9 @@ function cmd_build_sql($args)
     if ($filename[0] == '.') continue;
     if (substr($filename, -4) != ".php") continue;
     $classname = substr($filename,0,-4);
-    foreach($classname::$FIELDS as $field => $def) {
-      $defs[] = "  `$field` $def";
+
+    if (isset($classname::$SCHEMA)) {
+      echo $classname::$SCHEMA."\n\n";
     }
-    echo "DROP TABLE IF EXISTS `".$classname::$TABLE_NAME."`;\n";
-    echo "CREATE TABLE `".$classname::$TABLE_NAME."` (\n".implode(",\n",$defs)."\n) ENGINE=INNODB;\n\n";
   }
 }
