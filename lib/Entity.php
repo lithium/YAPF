@@ -53,7 +53,10 @@ class Entity
     }
     $out .= ">";
     foreach($fields as $f => $v) {
-      $out .= "<$f>$v</$f>";
+      if ($v)
+        $out .= "<$f>$v</$f>";
+      else
+        $out .= "<$f/>";
     }
     $out .= "</".static::$TABLE_NAME.">";
     return $out;
@@ -74,6 +77,7 @@ class Entity
       $where = '';
     $cursor = $dbh->query("SELECT * FROM `".static::$TABLE_NAME."` $where",$values);
     $cls = get_called_class();
+    $ret = array();
     while($cursor->next()) {
       $ret[] = new $cls($cursor->getRow());
     }
@@ -97,8 +101,5 @@ class Entity
     $ret->hydrate($array);
     return $ret;
   }
-  public static function fromXml($xmlstring) {
-  }
-
   
 }

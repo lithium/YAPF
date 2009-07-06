@@ -82,4 +82,21 @@ class Request
       return $_REQUEST[$name];
     return $default;
   }
+  
+  public function getParameters() {
+    $ret = array();
+    for ($i=0; $i < func_num_args(); $i++) {
+      $param = func_get_arg($i);
+      if (is_array($param)) {
+        foreach($param as $p) {
+          $v = $this->getParameter($p);
+          if ($v) $ret[$p] = $v;
+        }
+      } else {
+        $v = $this->getParameter($param);
+        if ($v) $ret[$param] = $v;
+      }
+    }
+    return $ret;
+  }
 }
