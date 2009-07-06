@@ -35,8 +35,8 @@ class Database
 
   public static function instance($database=null,$host=null,$user=null,$pass=null)
   {
-    if (is_null($database)) throw new Exception("Invalid Arguments");
     if (is_null(self::$instance)) {
+      if (is_null($database)) throw new Exception("Invalid Arguments");
       self::$instance = new Database($database,$host,$user,$pass);
     }
     return self::$instance;
@@ -44,7 +44,7 @@ class Database
   public function query($query, $values=array())
   {
     $query = $this->replace_values($query,$values);
-    #echo "\n<!-- $query -->\n";
+    echo "\n<!-- $query -->\n";
     if (self::USING_MYSQLI) {
       $results = $this->conn->query($query);
     } else {
@@ -53,6 +53,15 @@ class Database
     if ($results === FALSE) 
       throw new Exception(self::USING_MYSQLI ? mysqli_error($this->conn) : mysql_error($this->conn));
     return new Cursor($results);
+  }
+  public function insert_id()
+  {
+    if (self::USING_MYSQLI) {
+      return mysqli_insert_id($this->conn);
+    }
+    else {
+      return mysql_insert_id($this->conn);
+    }
   }
 
   private function replace_values($query,$values=array())

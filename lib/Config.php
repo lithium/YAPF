@@ -3,8 +3,15 @@
 function __autoload($class_name) {
   $base_path = realpath(dirname(__FILE__).'/../');
   $path = $base_path.'/lib/'.$class_name.'.php';
-  if (file_exists($path))
+  if (file_exists($path)) {
     require $path;
+    return;
+  }
+  $path = $base_path.'/entities/'.$class_name.'.php';
+  if (file_exists($path)) {
+    require $path;
+    return;
+  }
 }
 
 class Config {

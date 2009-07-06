@@ -8,6 +8,8 @@ if ($argc < 2) {
 $args = $argv;
 array_shift($args);
 $command = str_replace('-','_',array_shift($args));
+if (!function_exists('cmd_'.$command))
+  usage();
 call_user_func('cmd_'.$command, $args);
 
 function usage()
@@ -16,6 +18,7 @@ function usage()
   echo "Usage: {$argv[0]} [command] [arguments]\nCommands:\n";
   echo "  init-app <app_name>\n";
   echo "  init-module <app_name> <module_name>\n";
+  echo "  build-sql\n";
   exit;
 }
 
@@ -31,6 +34,8 @@ database_user=
 database_password=
 database_host=
 database_port=
+default_module=
+default_action=
 
 HERE;
   file_put_contents("apps/{$app}/config.ini", $default_config);
@@ -58,4 +63,21 @@ class $action_class extends Actions
 HERE;
   file_put_contents("apps/{$app}/{$module}/actions/{$action_class}.php",$default_actions);
   touch("apps/{$app}/{$module}/templates/index.php");
+}
+
+function cmd_build_sql($args)
+{
+  require "lib/Config.php";
+  $dir = new DirectoryIterator('entities'); 
+  foreach($dir as $file) {
+    $filename = $file->getFilename();
+    if ($filename[0] == '.') continue;
+    if (substr($filename, -4) != ".php") continue;
+    $classname = substr($filename,0,-4);
+    foreach($classname::$FIELDS as $field => $def) {
+      $defs[] = "  `$field` $def";
+    }
+    echo "DROP TABLE IF EXISTS `".$classname::$TABLE_NAME."`;\n";
+    echo "CREATE TABLE `".$classname::$TABLE_NAME."` (\n".implode(",\n",$defs)."\n) ENGINE=INNODB;\n\n";
+  }
 }

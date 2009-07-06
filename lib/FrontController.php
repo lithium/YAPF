@@ -23,12 +23,23 @@ class FrontController
     $this->realm_name = $config['realm'];
     $this->request = new Request();
     $this->response = new Response();
+
+    Database::instance(
+      $this->config['database_name'], $this->config['database_host'], $this->config['database_user'], $this->config['database_password']);
   }
 
   public function dispatch()
   {
-    $request_paths = explode('/',substr($this->request->getRequestUri(),1));
+    $request_uri = $this->request->getRequestUri();
+    if (($idx = strpos($request_uri, '?')) !== FALSE)
+      $request_uri = substr($request_uri,0,$idx);
+
+    $request_paths = explode('/',substr($request_uri,1));
     $this->module_name = $request_paths[0];
+    if (!$this->module_name) {
+      $this->module_name = $this->config['default_module'];
+    }
+
     if (count($request_paths) > 1)
       $this->action_name = $request_paths[1];
     else

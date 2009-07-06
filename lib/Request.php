@@ -76,4 +76,10 @@ class Request
   public function setAttribute($name,$value) {
     $this->attributes[$name] = $value;
   }  
+
+  public function getParameter($name,$default=null) {
+    if (array_key_exists($name, $_REQUEST))
+      return $_REQUEST[$name];
+    return $default;
+  }
 }

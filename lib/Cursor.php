@@ -8,15 +8,15 @@ class Cursor
   {
     $this->results = $mysql_results;
   }
-  public function next($type=MYSQL_BOTH)
+  public function next()
   {
     if (!$this->results)
       throw new Exception("Invalid Cursor");
     if (Database::USING_MYSQLI) {
-      $this->cur_row = mysqli_fetch_array($this->results, $type);
+      $this->cur_row = mysqli_fetch_assoc($this->results);
       return (!is_null($this->cur_row));
     } else {
-      $this->cur_row = mysql_fetch_array($this->results, $type);
+      $this->cur_row = mysql_fetch_assoc($this->results);
       return ($this->cur_row !== FALSE);
     }
   }
