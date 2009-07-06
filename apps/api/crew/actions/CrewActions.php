@@ -17,12 +17,8 @@ class CrewActions extends Actions
     $values = $request->getParameters(CrewEntity::$FIELDS);
 
     $crews = CrewEntity::find($values);
-
-    $response->write("<crews>");
-    foreach($crews as $crew) {
-      $response->write( $crew->toXml() ); 
-    }
-    $response->write("</crews>");
+  
+    $response->write($crews->toXml());
     return FALSE;
   }
 }
