@@ -1,0 +1,33 @@
+crew
+  first
+  last
+  dob
+  dod
+
+job
+  name
+
+publisher
+  name
+
+series
+  name
+  publisher_id
+  version
+  start_year
+
+issue
+  series_id 
+  number
+  print_date
+  print_run
+  cover
+  story_arc
+  arc_number
+  condition
+
+issue_crew
+  issue_id
+  crew_id  
+  job_id
+

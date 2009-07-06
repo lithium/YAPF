@@ -1,0 +1,15 @@
+/crew/get
+/crew/put [id, first, last, birth_date, death_date]
+
+/job/get
+/job/put
+
+/publisher/get
+/publisher/put
+
+/series/get
+/series/put
+
+/issue/get
+/issue/put
+
