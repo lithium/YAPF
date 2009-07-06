@@ -18,7 +18,6 @@ function usage()
   echo "Usage: {$argv[0]} [command] [arguments]\nCommands:\n";
   echo "  init-app <app_name>\n";
   echo "  init-module <app_name> <module_name>\n";
-  echo "  build-sql\n";
   exit;
 }
 
@@ -63,20 +62,4 @@ class $action_class extends Actions
 HERE;
   file_put_contents("apps/{$app}/{$module}/actions/{$action_class}.php",$default_actions);
   touch("apps/{$app}/{$module}/templates/index.php");
-}
-
-function cmd_build_sql($args)
-{
-  require "lib/Config.php";
-  $dir = new DirectoryIterator('entities'); 
-  foreach($dir as $file) {
-    $filename = $file->getFilename();
-    if ($filename[0] == '.') continue;
-    if (substr($filename, -4) != ".php") continue;
-    $classname = substr($filename,0,-4);
-
-    if (isset($classname::$SCHEMA)) {
-      echo $classname::$SCHEMA."\n\n";
-    }
-  }
 }
