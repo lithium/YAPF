@@ -6,6 +6,7 @@ class Actions extends Action
   {
     $method = "execute".ucfirst($this->action);
     if (method_exists($this, $method)) 
-      $this->$method($request,$response);
+      return $this->$method($request,$response);
+    return null;
   }
 }
