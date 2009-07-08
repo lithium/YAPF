@@ -61,6 +61,9 @@ class Entity
     $out .= "</".static::$TABLE_NAME.">";
     return $out;
   }
+  public function toJson() {
+    return json_encode($this->values);
+  }
 
 
   public static function find($fields=array()) {
@@ -127,5 +130,14 @@ class EntitySet implements Iterator {
     }
     $out .= "</{$this->set_name}>";
     return $out;
+  }
+  public function toJson() {
+    $out = '[';
+    foreach($this->entities as $entity) {
+      $out .= $entity->toJson();
+    }
+    $out .= ']';
+    return $out;
+    
   }
 }
