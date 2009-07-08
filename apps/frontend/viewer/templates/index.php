@@ -1,1 +1,4 @@
-<?=$publishers->toJson()?>
+<script>
+publishers = <?=$publishers->toJson()?>;
+series = <?=$series->toJson()?>;
+</script>
