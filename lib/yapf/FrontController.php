@@ -17,7 +17,7 @@ class FrontController
     return self::$instance;
   }
   private function __construct($config) { 
-    $this->base_path = realpath(dirname(__FILE__).'/../');
+    $this->base_path = realpath(dirname(__FILE__).'/../../');
     $this->config = $config;
     $this->app_name = $config['app'];
     $this->realm_name = $config['realm'];
@@ -53,16 +53,24 @@ class FrontController
     $ret = $this->execute_action(ucfirst($this->action_name).'Action');
     if ($ret === FALSE) return;
 
-    // parse the template
+
+    $template_output = '';
+
+    // parse the action template
     $path = $this->base_path.'/apps/'.$this->app_name.'/'.$this->module_name.'/templates/'.$this->action_name.'.php';
     if (file_exists($path)) {
-      ob_start();
-      self::scoped_include($path,$this->request->getAttributes());
-      $template_output = ob_get_contents();
-      $this->response->write($template_output);
-      ob_end_clean();
+      $template_output = self::scoped_include($path,$this->request->getAttributes());
     }
 
+    // check for layout template
+    $path = $this->base_path.'/apps/'.$this->app_name.'/templates/layout.php';
+    if (file_exists($path)) {
+      $template_output = self::scoped_include($path, array(
+        'yapf_content' => $template_output,
+      ));
+    }
+
+    $this->response->write($template_output);
     $this->response->flush();
   }
 
@@ -76,12 +84,17 @@ class FrontController
   }
   private static function scoped_include($__TEMPLATE__, $vars=array())
   {
+    if (!file_exists($__TEMPLATE__)) return false;
     if (is_array($vars)) 
       foreach($vars as $k => $v) {
         $$k = $v;
       }
     unset($k,$v,$vars);
-    return include($__TEMPLATE__);
+    ob_start();
+    include($__TEMPLATE__);
+    $ret = ob_get_contents();
+    ob_end_clean();
+    return $ret;
   }
 }
 
