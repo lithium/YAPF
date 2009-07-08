@@ -16,17 +16,39 @@ function usage()
 {
   global $argv;
   echo "Usage: {$argv[0]} [command] [arguments]\nCommands:\n";
-  echo "  init-app <app_name>\n";
+  echo "  init-app <app_name> [web_directory]\n";
   echo "  init-module <app_name> <module_name>\n";
+  echo "  build-apache <app_name> <server_name> [ip_address] [port] [web_directory]\n";
   exit;
+}
+
+function cmd_build_apache($args)
+{
+  if (count($args) < 2) return usage();
+  list($app,$servername) = $args;
+  $host = (count($args) > 2) ? $args[2] : "127.0.0.1";
+  $port = (count($args) > 3) ? $args[3] : "80";
+  $dir = (count($args) > 4) ? $args[4] : getcwd()."/web_$app";
+  echo <<<APACHE
+<VirtualHost $host:$port>
+  ServerName $servername
+  DocumentRoot $dir
+  <Directory $dir>
+    AllowOverride All
+    Allow from all
+  </Directory>
+</VirtualHost>
+
+APACHE;
 }
 
 function cmd_init_app($args)
 {
   if (count($args) < 1) return usage();
   list($app) = $args;
+  $web_dir = (count($args) > 1) ? $args[1] : "web_$app";
   mkdir("apps/{$app}",0755,true);
-  $default_config =<<<HERE
+  $default_config =<<<CONFIG
 [default]
 database_name=
 database_user=
@@ -35,9 +57,43 @@ database_host=
 database_port=
 default_module=
 default_action=
+layout=layout.php
 
-HERE;
+CONFIG;
   file_put_contents("apps/{$app}/config.ini", $default_config);
+  $default_layout = <<<LAYOUT
+<html>
+<head>
+</head>
+<body>
+  <?=\$yapf_content?>
+</body>
+</html>
+LAYOUT;
+  file_put_contents("apps/{$app}/layout.php", $default_layout);
+  mkdir("web_{$app}",0755);
+  $default_htaccess = <<<HTACCESS
+Options +FollowSymLinks +ExecCGI
+RewriteEngine On
+
+RewriteCond %{REQUEST_URI} \..+$
+RewriteCond %{REQUEST_URI} !\.html$
+RewriteRule .* - [L]
+
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+HTACCESS;
+  file_put_contents("$web_dir/.htaccess", $default_htaccess);
+  $default_index = <<<INDEX
+<?php
+
+require ( dirname(__FILE__).'/../lib/yapf/Config.php' );
+
+\$config = Config::getConfig('$app','dev');
+FrontController::instance(\$config)->dispatch();
+
+INDEX;
+  file_put_contents("$web_dir/index.php", $default_index);
 }
 function cmd_init_module($args)
 {
@@ -50,7 +106,7 @@ function cmd_init_module($args)
   mkdir("apps/{$app}/{$module}/actions",0755,true);
   mkdir("apps/{$app}/{$module}/templates",0755,true);
   $action_class = ucfirst($module).'Actions';
-  $default_actions=<<<HERE
+  $default_actions=<<<ACTIONS
 <?php
 class $action_class extends Actions 
 {
@@ -59,7 +115,7 @@ class $action_class extends Actions
   }
 }
 
-HERE;
+ACTIONS;
   file_put_contents("apps/{$app}/{$module}/actions/{$action_class}.php",$default_actions);
   touch("apps/{$app}/{$module}/templates/index.php");
 }
