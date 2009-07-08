@@ -47,19 +47,25 @@ class FrontController
 
     // call module actions first if exists
     $ret = $this->execute_action(ucfirst($this->module_name).'Actions');
-    if ($ret === FALSE) return;
+    if ($ret === FALSE) {
+      $this->response->flush();
+      return;
+    }
 
     // try standalone action file 
     $ret = $this->execute_action(ucfirst($this->action_name).'Action');
-    if ($ret === FALSE) return;
+    if ($ret === FALSE) {
+      $this->response->flush();
+      return;
+    }
 
-
-    $template_output = '';
+    $template_output = $this->response->getContent();
+    $this->response->clearBuffer();
 
     // parse the action template
     $path = $this->base_path.'/apps/'.$this->app_name.'/'.$this->module_name.'/templates/'.$this->action_name.'.php';
     if (file_exists($path)) {
-      $template_output = self::scoped_include($path,$this->request->getAttributes());
+      $template_output .= self::scoped_include($path,$this->request->getAttributes());
     }
 
     // check for layout template
@@ -67,6 +73,7 @@ class FrontController
     if (file_exists($path)) {
       $template_output = self::scoped_include($path, array(
         'yapf_content' => $template_output,
+        'wa' => 'wa',
       ));
     }
 

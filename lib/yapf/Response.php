@@ -49,4 +49,13 @@ class Response
     $this->buffer .= $data;
   }
 
+  public function getContent() {
+    return $this->buffer;
+  }
+
+  public function clearBuffer() {
+    $this->buffer = '';
+  }
+
+
 }

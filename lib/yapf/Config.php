@@ -15,7 +15,7 @@ function __autoload($class_name) {
 
   if (try_require($base_path.'/lib/'.$class_name.'.php')) return;
   if (try_require($base_path.'/lib/yapf/'.$class_name.'.php')) return;
-  if (try_require($base_path.'/entities/'.$class_name.'.php')) return;
+  if (try_require($base_path.'/lib/entities/'.$class_name.'.php')) return;
 }
 
 class Config {
