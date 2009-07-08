@@ -63,7 +63,7 @@ class FrontController
     }
 
     // check for layout template
-    $path = $this->base_path.'/apps/'.$this->app_name.'/templates/layout.php';
+    $path = $this->base_path.'/apps/'.$this->app_name.'/'.$this->config['layout'];
     if (file_exists($path)) {
       $template_output = self::scoped_include($path, array(
         'yapf_content' => $template_output,
