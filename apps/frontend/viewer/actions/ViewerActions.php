@@ -5,5 +5,6 @@ class ViewerActions extends Actions
   {
     $this->publishers = PublisherEntity::find();
     $this->series = SeriesEntity::find();
+    $this->issues = IssueEntity::find();
   }
 }
