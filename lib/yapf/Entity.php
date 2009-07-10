@@ -16,6 +16,9 @@ class Entity
   public function __set($name, $value) {
     $this->values[$name] = $value;
   }
+  public function getPk() {
+    return $this->values[static::$PK];
+  }
   public function toArray() { 
     return $this->values;
   }
@@ -132,12 +135,10 @@ class EntitySet implements Iterator {
     return $out;
   }
   public function toJson() {
-    $out = '[';
+    $out = array();
     foreach($this->entities as $entity) {
-      $out .= $entity->toJson();
+      $out[] = '"'.$entity->getPk().'": '. $entity->toJson();
     }
-    $out .= ']';
-    return $out;
-    
+    return '{'.implode(',',$out).'}';
   }
 }
